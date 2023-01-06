@@ -1,7 +1,7 @@
 #!/bin/bash
 # build and run
-clear
+cls
 # rm a.out
 g++ -std=c++11 main.cpp
-./a.exe ../../data/EscherichiaColi/genome.fna  ../../data/pat.txt
+./a.exe
 # rm a.out

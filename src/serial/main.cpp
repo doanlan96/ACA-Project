@@ -10,24 +10,20 @@ using namespace std;
 
 int main(int argc, char *argv[])
 {
-    // system("clear");
-	// system(("py ../clean_data/remove_nl.py "+string(argv[1])).c_str());
-	// system(("py ../clean_data/remove_nl.py "+string(argv[2])).c_str());
-    system("py ../clean_data/remove_nl.py");		
-	string txt = read_file( "./genome_no_new_line.txt" );
-	string pat = read_file( "./pat_no_new_line.txt" );
-	system("del genome_no_new_line.txt  pat_no_new_line.txt");
-
+    // remove lines from the texts and print their sizes
+    system("py ../clean_data/remove_lines_for_serial.py");		
+	string txt = read_file( "./genome_single_line.txt" );
+	string pat = read_file( "./pat_single_line.txt" );
     cout<<"size of the full text: "<<txt.length()<<" and the "<<"size of the pattern: "<<pat.length()<<endl;
 
-
-
-    clock_t begin = clock();
-
+    // clock ticking
+    clock_t start = clock();
     int pat_appear = search((char*)txt.c_str(), (char*)pat.c_str());
-    clock_t end = clock();
-    double elapsed_secs = double(end - begin)*1000 / CLOCKS_PER_SEC;
+    clock_t finish = clock();
+    double exec_time = double(finish - start)*1000 / CLOCKS_PER_SEC;
+    system("del genome_single_line.txt  pat_single_line.txt");
 
-    cout<<"Found: "<<pat_appear<<" pattern appearance(s)"<<" in "<<elapsed_secs<<" milliseconds."<<endl;
+   // print the result
+    cout<<"Found: "<<pat_appear<<" pattern appearance(s)"<<" in "<<exec_time<<" milliseconds."<<endl;
     return 0;
 }

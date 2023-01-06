@@ -1,3 +1,4 @@
+#include <bits/stdc++.h>
 #include <stdio.h>
 #include <mpi.h>
 #include <stdlib.h>
@@ -29,11 +30,12 @@ int main (int argc, char *argv[]) {
 	if (myrank == 0){ 
 
 		// system("clear");
-		system(("py ../clean_data/remove_line.py "+string(argv[1])).c_str());
-		system(("py ../clean_data/remove_line.py "+string(argv[2])).c_str());		
-		string txt = read_file( "./genome_no_new_lines.txt" );
-		string pat = read_file( "./pat_no_new_lines.txt" );
-		system("del genome_no_new_lines.txt  pat_no_new_lines.txt");
+		// system(("py ../clean_data/remove_lines_for_parallel.py "+string(argv[1])).c_str());
+		// system(("py ../clean_data/remove_lines_for_parallel.py "+string(argv[2])).c_str());		
+		system("py ../clean_data/remove_lines_for_parallel.py");
+		string txt = read_file( "./genome_single_line.txt" );
+		string pat = read_file( "./pat_single_line.txt" );
+		system("del genome_single_line.txt  pat_single_line.txt");
 
 
     	long long int N = txt.length();
