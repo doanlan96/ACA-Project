@@ -2,10 +2,8 @@
 #include <stdio.h>
 #include <mpi.h>
 #include <stdlib.h>
-#include <iostream> //cout
+#include <iostream>
 #include <string>
-#include <unordered_map> //hash strings (for debugging)
-#include <malloc.h> //get dyn-allocated size  (for debugging)
 
 #include "../headers/read_file.h"
 #include "../headers/rabin_karp.h"
@@ -15,47 +13,41 @@
 
 
 int main (int argc, char *argv[]) {
-	//START COMMON
+	//Initialize MPI common
 	MPI_Status status;
-	int myrank, size, retVal;	
+	int my_rank, size, ret_val;	
 
 	MPI_Init(&argc, &argv);
-	MPI_Comm_rank(MPI_COMM_WORLD, &myrank);
+	MPI_Comm_rank(MPI_COMM_WORLD, &my_rank);
 	MPI_Comm_size(MPI_COMM_WORLD, &size);
 
-	hash<string> hasher; //only for debug
-	//END COMMON
-
-	//START MASTER
-	if (myrank == 0){ 
-
-		// system("clear");
-		// system(("py ../clean_data/remove_lines_for_parallel.py "+string(argv[1])).c_str());
-		// system(("py ../clean_data/remove_lines_for_parallel.py "+string(argv[2])).c_str());		
+	//Master initialization
+	if (my_rank == 0){ 
+	
 		system("py ../clean_data/remove_lines_for_parallel.py");
 		string txt = read_file( "./genome_single_line.txt" );
 		string pat = read_file( "./pat_single_line.txt" );
 		system("del genome_single_line.txt  pat_single_line.txt");
 
 
-    	long long int N = txt.length();
+    	long int N = txt.length();
     	int M = pat.length();
-		int payLoadSize = (int)(N/(size-1));
+		int pay_load_size = (int)(N/(size-1));
 
 		clock_t t = clock();
 
 		cout<<"size of the full text: "<<N<<" and the "<<"size of the pattern: "<<M<<endl;
 
 		// master sends a 'subtext'  to each of the slaves
-		long long int offset = 0;
-		for (int p = 1; p < size; ++p){
-			
+		long int offset = 0;
+		for (int p = 1; p < size; ++p)
+		{	
 			string subtxt = txt.substr(offset, payLoadSize);
 			string message = string(subtxt)+SEPARATOR+string(pat)+"\0";
 			// cout<<"number of elements in the message: "<<message.length()<<"\n"; 
 
-		    retVal = MPI_Send(message.c_str(),  message.length() , MPI_CHAR, p, TAG, MPI_COMM_WORLD);
-			offset+=payLoadSize;
+		    ret_val = MPI_Send(message.c_str(),  message.length() , MPI_CHAR, p, TAG, MPI_COMM_WORLD);
+			offset += pay_load_size;
 		}
 
 		int result;
@@ -71,56 +63,45 @@ int main (int argc, char *argv[]) {
 		cout<<"Found: "<<results<<" occurences"<<" in "<<millisecs<<" milliseconds."<<endl;
 	}
 	
-	//START SLAVE
-	if(myrank != 0){
-
-		//Dynamic probing of incoming message size. 
-		//got help from here:
-		//https://mpitutorial.com/tutorials/dynamic-receiving-with-mpi-probe-and-mpi-status/
-
-		
+	//Slaves initialization
+	if(my_rank != 0){
+		// Dynamic probing of incoming message size. 
 		// Probe for an incoming message from master
 		MPI_Status status;
 		MPI_Probe(0, TAG, MPI_COMM_WORLD, &status);
 		
 	    // When probe returns, the status object has the size and other
         // attributes of the incoming message. Get the message size
-		int messageSize; //size of the incoming string
-        MPI_Get_count(&status, MPI_CHAR, &messageSize);
-
-		// cout<< "number of elements in message as received by slave: "<<messageSize<<"\n";
+		int message_size; //size of the incoming string
+        MPI_Get_count(&status, MPI_CHAR, &message_size);
 	
 		// Allocate a buffer to hold the incoming chars
-		int numBytes = sizeof(char)*(messageSize);
+		int num_bytes = sizeof(char)*(message_size);
 		
-		char* buf = (char*)malloc(numBytes);
+		char* buf = (char*)malloc(num_bytes);
 		
-		retVal = MPI_Recv(buf, messageSize, MPI_CHAR, 0, TAG, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+		ret_val = MPI_Recv(buf, message_size, MPI_CHAR, 0, TAG, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
 
 
 		// split into subtext and pattern
-		// https://www.tutorialspoint.com/c_standard_library/c_function_strtok.htm
 		char* pattern;
     	char* text;
-
-		// get the subtext
+		// get subtext
 		text = strtok(buf, SEPARATOR);
-		// get the pattern
+		// get pattern
 		pattern = strtok(NULL, SEPARATOR);
 
-		// search
+		// search for pattern appearances
 		int result = search(text, pattern);
 
-		cout<<"Slave of rank: "<<myrank<<" subtext hash: "<<hasher(text)<<" length of the string: "<<strlen(text)<<endl;
+		cout<<"Slave of rank: "<<my_rank<<" subtext hash: "<<hasher(text)<<" length of the string: "<<strlen(text)<<endl;
 
-		// sends back the results to the master
-		retVal = MPI_Send(&result, 1, MPI_INT, 0, TAG, MPI_COMM_WORLD);
+		// send the result back to the master
+		ret_val = MPI_Send(&result, 1, MPI_INT, 0, TAG, MPI_COMM_WORLD);
 		free(buf);
-		//END SLAVE
 		cout<<"";
 	}
-	//START FINALCOM
+	//End
 	MPI_Finalize();
-	//END FINALCOM
     return 0;
 }
