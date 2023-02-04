@@ -24,22 +24,22 @@ int main (int argc, char *argv[]) {
 	//Master initialization
 	if (my_rank == 0){ 
 	
-		system("py ../clean_data/remove_lines_for_parallel.py");
-		string txt = read_file( "./genome_single_line.txt" );
-		string pat = read_file( "./pat_single_line.txt" );
-		system("del genome_single_line.txt  pat_single_line.txt");
+		system("python3 ../clean_data/remove_lines_for_parallel.py");
+		string txt = read_file( "./genome_human_single_line.txt" );
+		string pat = read_file( "./pattern_human_single_line.txt" );
+		system("rm genome_human_single_line.txt  pattern_human_single_line.txt");
 
 
-    	long int N = txt.length();
-    	int M = pat.length();
-		int pay_load_size = (int)(N/(size-1));
+    	long long int N = txt.length();
+    	long int M = pat.length();
+		long int pay_load_size = (long long int)(N/(size-1));
 
 		clock_t t = clock();
 
 		cout<<"size of the full text: "<<N<<" and the "<<"size of the pattern: "<<M<<endl;
 
 		// master sends a 'subtext'  to each of the slaves
-		long int offset = 0;
+		long long int offset = 0;
 		for (int p = 1; p < size; ++p)
 		{	
 			string subtxt = txt.substr(offset, payLoadSize);
@@ -50,8 +50,8 @@ int main (int argc, char *argv[]) {
 			offset += pay_load_size;
 		}
 
-		int result;
-		int results=0;
+		long long int result;
+		long long int results=0;
 		// master receives results from slaves
 		for (int p = 1; p < size; ++p){
             //int result;
@@ -76,7 +76,7 @@ int main (int argc, char *argv[]) {
         MPI_Get_count(&status, MPI_CHAR, &message_size);
 	
 		// Allocate a buffer to hold the incoming chars
-		int num_bytes = sizeof(char)*(message_size);
+		long long int num_bytes = sizeof(char)*(message_size);
 		
 		char* buf = (char*)malloc(num_bytes);
 		
@@ -92,7 +92,7 @@ int main (int argc, char *argv[]) {
 		pattern = strtok(NULL, SEPARATOR);
 
 		// search for pattern appearances
-		int result = search(text, pattern);
+		long long int result = search(text, pattern);
 
 		cout<<"Slave of rank: "<<my_rank<<" subtext hash: "<<hasher(text)<<" length of the string: "<<strlen(text)<<endl;
 

@@ -7,19 +7,19 @@ using namespace std;
 
 
 #define D 256 // the number of characters in the alphabet
-#define Q INT_MAX // A big prime number to avoid the collision 
+#define Q ULONG_MAX // A big prime number to avoid the collision 
 
 
 // RABIN-KARP implementation
 int search(char txt[] ,char pat[])
 {
-    int M = strlen(pat); 
-    int N = strlen(txt); 
-    int i, j;   // indexes
-    int hash_p = 0; // hash value for pattern
-    int hash_t = 0; // hash value for txt
-    int h = 1; 
-    int pat_appear = 0; // the number of the pattern appearance
+    long long int M = strlen(pat); 
+    long long int N = strlen(txt); 
+    long long int i, j;   // indexes
+    long long int hash_p = 0; // hash value for pattern
+    long long int hash_t = 0; // hash value for txt
+    long long int h = 1; 
+    long long int pat_appear = 0; // the number of the pattern appearance
  
     // The value of h would be "pow(R, M-1)%q"
     for (i = 0; i < M-1; i++){

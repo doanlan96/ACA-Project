@@ -1,7 +1,7 @@
 #!/bin/bash
 # build and run
-cls
+#cls
 # rm a.out
 g++ -std=c++11 main.cpp
-./a.exe
+./a.out
 # rm a.out

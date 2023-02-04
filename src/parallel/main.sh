@@ -3,6 +3,5 @@
 clear
 rm a.out
 mpic++ -std=c++11 main.cpp
-#mpiexec -n 16 --oversubscribe ./a.out ../../data/EscherichiaColi/genome.fna  ../../data/pat.txt
-mpiexec -n $1  ./a.exe ../../data/EscherichiaColi/genome.fna  ../../data/pat.txt
-rm a.out
+#mpiexec -n 16 --oversubscribe ./a.out /home/saurav_anand01/ACA-Project-main/data/GRCh38_Human/GRCh38  ../../data/patternHuman.txt
+mpiexec -n $1  ./a.out /home/saurav_anand01/ACA-Project-main/data/GRCh38_Human/GRCh38  ../../data/patternHuman.txt
